@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="double_tap_timeout"
+        android:title="Double Tap Timeout"
+        android:inputType="number"
+        android:defaultValue="250"
+        android:summary="Enter the timeout in milliseconds" />
+</PreferenceScreen>
