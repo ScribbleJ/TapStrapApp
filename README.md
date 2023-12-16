@@ -10,7 +10,7 @@ This project aims to significantly enhance the typing experience for Tap Strap u
    * Useable for More Than Text: Overcomes the Tap Strap's issue of typing the wrong letter followed by a backspace.
    * On-Screen IME Keyboard: Displays the current state, indicating the recently chorded fingers and held meta keys (ALT, SHIFT, CTRL, META). These indicators are also clickable for convenience.
    * Advanced Chording Feedback: Shows the output for single, double, and triple taps (and beyond), offering more depth than the standard Tap Strap behavior.  These are also clickable if you like.
-   * Customizable Chording: Unlike the Tap Strap's web-based configuration, our IME allows local programming of any chord using standard CSV files, providing flexibility and extensive customization.  ANY CHORD.  You sick of several chords being reserved and un-editable in the Tap Systems Tapmapper?  NO LONGER!
+   * Customizable Chording: This IME allows local programming of any chord using standard CSV files, providing flexibility and extensive customization.  ANY CHORD.  You bothered by several chords being reserved and un-editable in the Tap Systems Tapmapper?  We got you.
    * More Taps: You want triple-taps?  Quad-taps?  There's no limit!  I just don't know what you call 5 or more.  You want SHIFT mode to do double-taps, triple taps? Have it!  You want SWITCH mode to... okay you get it.
    * More shifts/switches:  You can define as many different modes as you like and each can have infinite taps.
    * (Optional) Tap Cycling: If you keep double-triple-etc tapping, after you go past the end of what's configured, it wraps back around to single-tap again, so you can "go back" without getting the wrong output first.
@@ -43,6 +43,22 @@ It's full of bugs and will probably set your phone on fire.  I can't take any re
 * Use the settings menu or the "Keyboard button" you just turned on to switch your default keyboard to the TapStrapIME.
 * Find someplace to input text and try it out.  The provided config files should match the defaults in the TapStrap hardware.
 
+## USAGE NOTE:
+
+### JUST KEEP TAPPING.  // Hey, is this an app name?
+
+The way the tap timeout works in this app, the character you tap will be input when: 
+
+1. As soon as you tap a different character/tap pattern.
+2. Instantly if you have no further options for this tap.
+3. After your configured timeout has expired; default is 300ms.  The unlabeled slider in the app goes from 0 to 1 second.
+
+I think option 2 needs a little explanation; if you have only single taps configured and no double-taps, then every tap will be instantaneous.  
+You can still use the entire keybaord; just use the map shifting to use multiple maps each of which only have single-taps.  If that's your jam.
+I don't judge.  Similarly, if you have double and triple taps configured, then when you reach the third tap the character(s) will be input instantly.
+
+Unless you have the tap Cycling option enabled, in which case you can keep tapping to cycle back to single-tap.  
+
 
 ## Developer's Note(s)
 
@@ -52,7 +68,8 @@ Although the best way to fix the problem would be in the Tap Strap firmware dire
 
 If this project eventually becomes useful to you and you'd like to show support, the developer appreciates donations to the Kitten.Academy Patreon.  https://www.patreon.com/kittenacademy
 
-## Copyright Chris Jansen, etc, etc, you can use this for yourself, but we haven't arranged any licensing for you to modify the source or redistribute yet.
+## Copyright 
+Copyright Chris Jansen, etc, etc, you can use this for yourself, but we haven't arranged any licensing for you to modify the source or redistribute yet.
 
 Aside from the Android boilerplate and the actual Tap Systems SDK, this is all original code so as of now the licensing is pretty much my problem.
 I'm supposed to say "all rights reserved" here, right?
