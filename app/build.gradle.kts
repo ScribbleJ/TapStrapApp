@@ -1,4 +1,5 @@
 import java.io.ByteArrayOutputStream
+import java.time.LocalDate
 
 plugins {
     id("com.android.application")
@@ -18,12 +19,14 @@ android {
         }.toString().trim()
     }
 
+    val currentDate = LocalDate.now().toString() // ISO Format (YYYY-MM-DD)
+
     defaultConfig {
         applicationId = "com.scribblej.tapstrapapp"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.$gitCommitHash"
+        versionName = "$currentDate-$gitCommitHash"
 
         vectorDrawables {
             useSupportLibrary = true
