@@ -11,6 +11,7 @@ import com.tapwithus.sdk.TapSdkFactory
 import android.view.View
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.NonNull
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
@@ -27,6 +28,7 @@ import com.scribblej.tapstrapapp.presentation.TapInputView
 
 
 import com.scribblej.tapstrapapp.presentation.TapInputViewModel
+import com.tapwithus.sdk.mode.TapInputMode
 
 // For managing the timeouts without race conditions
 import java.util.concurrent.Executors
@@ -59,10 +61,22 @@ class TapInputMethodService : LifecycleInputMethodService(),
         mapSwitchFlag = true
         return arrayOf()
     }
+
+    private fun tapMouseStart() : Array<KeyEvent> {
+        sdk.connectedTaps.forEach() { sdk.startControllerWithMouseHIDMode(it) }
+        return arrayOf()
+    }
+    private fun tapMouseStop() : Array<KeyEvent> {
+        sdk.connectedTaps.forEach() { sdk.startControllerMode(it) }
+        return arrayOf()
+    }
+
     // TODO: Map these strings to the KeyEvents in the map initializer so we aren't doing string hash lookups in the tap code.
     // Then use the KeyEvent (Int) as the lookup value here.
     private val actionMap: Map<String, () -> Array<KeyEvent>> = mapOf(
         "MAPSWITCH" to { prepareMapSwitch() },
+        "STARTMOUSE" to { tapMouseStart() },
+        "STOPMOUSE"  to { tapMouseStop() },
         "CTRL"  to { toggleModifier(KeyEvent.META_CTRL_ON) },
         "ALT"   to { toggleModifier(KeyEvent.META_ALT_ON) },
         "SHIFT" to { toggleModifier(KeyEvent.META_SHIFT_ON) },
@@ -370,9 +384,10 @@ class TapInputMethodService : LifecycleInputMethodService(),
 
     private fun cancelScheduledTask() {
         synchronized(this) {
-            if (scheduledFuture?.isCancelled == false)
-                if (! (scheduledFuture?.cancel(true) ?: true))
-                    Log.d("foo","unable to cancel.")
+            scheduledFuture?.cancel(true)
+            //if (scheduledFuture?.isCancelled == false)
+                //if (! (scheduledFuture?.cancel(true) ?: true))
+                    // Log.d("foo","unable to cancel.")
         }
     }
 
@@ -404,7 +419,12 @@ class TapInputMethodService : LifecycleInputMethodService(),
 
         // TapStrap SDK
         sdk = TapSdkFactory.getDefault(this)
+
+        sdk.setDefaultMode(TapInputMode.controller(), true)
+        //sdk.disablePauseResumeHandling()  // Might disable the Tap's ability to be used for HID?
         sdk.registerTapListener(this)
+        sdk.enablePauseResumeHandling()
+        sdk.clearCacheOnTapDisconnection(true)
 
         ////// This callback is to allow for the user to select a CommandList from the UI and execute it
         // rather than tapping to it as God intended.
@@ -424,8 +444,9 @@ class TapInputMethodService : LifecycleInputMethodService(),
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
-        Log.d("foo", "Start Input.")
         sdk.resume()
+        Log.d("foo","Tap(s) currently connected: ${sdk.connectedTaps}")
+        Log.d("foo", "Start Input.")
     }
 
     override fun onFinishInput() {
@@ -436,8 +457,43 @@ class TapInputMethodService : LifecycleInputMethodService(),
 
     override fun onDestroy() {
         super.onDestroy()
+        sdk.unregisterTapListener(this)
+
         Log.d("foo","Destroy.")
-        sdk.close()
+        //sdk.close()
+    }
+
+    override fun onTapConnected(tapIdentifier: String) {
+        super.onTapConnected(tapIdentifier)
+
+        Log.d("foo","Tap Connected: $tapIdentifier")
+
+    }
+    override fun onTapDisconnected(tapIdentifier: String) {
+        super.onTapDisconnected(tapIdentifier)
+        Log.d("foo","Tap Disconnected: $tapIdentifier")
+    }
+    override fun onTapChangedState(tapIdentifier: String, state: Int) {
+        super.onTapChangedState(tapIdentifier, state)
+        val TapModes = listOf("TEXT", "CONTROLLER", "CONTROLLER_WITH_MOUSE", "RAW", "CONTROLLER_WITH_HID")
+        if (state in TapModes.indices) {
+            Log.d("foo", "Tap State Change: $tapIdentifier, $state: ${TapModes[state]}")
+        } else {
+            Log.d("foo", "Invalid tap state index: $state")
+        }
+
+        Log.d("foo", "Tap State Change: $tapIdentifier, $state:${TapModes[state]}")
+    }
+
+    override fun onError(tapIdentifier: String, code: Int, description: String) {
+        super.onError(tapIdentifier, code, description)
+        Log.e("foo", "Tap $tapIdentifier ERROR $code \"$description\"")
+    }
+
+    override fun onTapStartConnecting(tapIdentifier: String) {
+        super.onTapStartConnecting(tapIdentifier)
+        Log.d("foo", "Tap Start Connection: $tapIdentifier")
+        sdk.startControllerMode(tapIdentifier)
     }
 
     //  Garbage required to support service that Activities do for themselves.

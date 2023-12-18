@@ -1,0 +1,42 @@
+# one finger down
+10000,@
+01000,!
+00100,*
+00010,$
+00001,#
+# two fingers together
+11000,""""
+01100,
+00110,
+00011,_
+# two fingers skipping one
+10100,)
+01010,}
+00101,>
+# two fingers skipping two
+10010,;
+01001,]
+# looks like y and w
+10001,
+10101,\
+# one finger up
+01111,6
+10111,7
+11011,8
+11101,9
+11110,0
+# one finger chasing two
+10110,
+01011,
+# two fingers chasing one
+11010,=
+01101,`
+# three fingers skipping two
+11001,
+10011,|
+# three fingers together
+11100,
+01110,
+00111,
+# all fingers together
+11111,

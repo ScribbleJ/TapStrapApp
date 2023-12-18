@@ -46,7 +46,9 @@ class TapInputViewModel(private val sharedPreferences: SharedPreferences) : View
     fun updateTapPattern(newPattern: Int) {
         _tapPattern.value = newPattern
         _lifetimeTaps.value = _lifetimeTaps.value + 1
-        sharedPreferences.edit().putInt("lifetime_taps", _lifetimeTaps.value).apply()
+        // we get nulls from the Preview mode.
+        sharedPreferences.edit()?.putInt("lifetime_taps", _lifetimeTaps.value)?.apply()
+
     }
 
     // the commandLists for the current TapPattern

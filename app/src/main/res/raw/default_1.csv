@@ -1,0 +1,63 @@
+# Lines beginning with # are comments.
+# Standard comma-separated values file format.  
+#
+# first value is a binary map of the fingers, from the right-hand perspective.
+#
+# remaining values are either commands or characters to type.  You can't use both without a comma in-between.
+#
+#
+# commands are listed fully in "actionMap" in TapInputMethodService.kt
+# See Also: https://developer.android.com/reference/android/view/KeyEvent
+# Most all of those should work with the KEYCODE_ part removed.
+#
+# Extra commands:
+#  MAPSWITCH,mapname switches to a different named set of csv -- the name goes after the comma.
+#  CTRL, ALT, SHIFT, META, CAPSLOCK, NUMLOCK, SCROLLOCK = Toggle the respective key
+#  CTRLONCE, ALTONCE, SHIFTONCE, METAONCE, CAPSLOCKONCE, NUMLOCKONCE, SCROLLOCKONCE = turn the key on for the next key(s) only
+#  BACKSPACE, DELETE = for convenience, in the Android KeyCodes these are named DEL and FORWARD_DEL respectively.
+#
+# Default Tap Strap Mapping from Tap Systems
+#
+# one finger down
+10000,a
+01000,e
+00100,i
+00010,o
+00001,u
+# two fingers together
+11000,n
+01100,t
+00110,l
+00011,s
+# two fingers skipping one
+10100,d
+01010,m
+00101,z
+# two fingers skipping two
+10010,k
+01001,b
+# looks like y and w
+10001,y
+10101,w
+# one finger up
+01111,h
+10111,c
+11011,v
+11101,j
+11110,r
+# one finger chasing two
+10110,g
+01011,x
+# three fingers skipping two
+11010,f
+01101,q
+# three fingers together
+11001,ENTER
+10011,p
+#
+11100,MAPSWITCH,SHIFTMAP
+01110,BACKSPACE
+00111,MAPSWITCH,SWITCHMAP
+
+# all fingers together
+11111," "

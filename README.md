@@ -9,7 +9,7 @@ This project aims to significantly enhance the typing experience for Tap Strap u
 
    * Useable for More Than Text: Overcomes the Tap Strap's issue of typing the wrong letter followed by a backspace.
    * On-Screen IME Keyboard: Displays the current state, indicating the recently chorded fingers and held meta keys (ALT, SHIFT, CTRL, META). These indicators are also clickable for convenience.
-   * Advanced Chording Feedback: Shows the output for single, double, and triple taps (and beyond), offering more depth than the standard Tap Strap behavior.  These are also clickable if you like.
+   * Advanced Chording Feedback: Shows the output for single, double, and triple taps (and beyond).  These are also clickable if you like.
    * Local Chord Mapping: This IME allows local programming of any chord using standard CSV files, providing flexibility and extensive customization.  
    * Any Chord: Yes, any! You bothered by several chords being reserved and un-editable in the Tap Systems Tapmapper?  We got you.
    * More Taps: You want triple-taps?  Quad-taps?  There's no limit!  I just don't know what you call 5 or more.  You want SHIFT mode to do double-taps, triple taps? Have it!  You want SWITCH mode to... okay you get it.

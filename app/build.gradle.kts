@@ -76,6 +76,7 @@ dependencies {
     implementation("androidx.wear.compose:compose-foundation:1.2.1")
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.ui:ui-tooling-android:1.5.4")
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.platform.AbstractComposeView
-
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -248,25 +247,6 @@ fun TapPatternIndicator(tapInputViewModel: TapInputViewModel) {
     }
 }
 
-@Composable
-fun KeyedCircleIndicator(key: Int, isOn: Boolean) {
-    val color = remember { Animatable(Color.Gray) }
-
-    LaunchedEffect(key, isOn) {
-        color.animateTo(if (isOn) Color.Green else Color.Gray, animationSpec = tween(durationMillis = if (isOn) 25 else 500))
-        if (isOn) {
-            delay(1000) // Delay for 1 second while green
-            color.animateTo(Color.Gray, animationSpec = tween(500))
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .size(circlesize) // Adjust the size as needed
-            .background(color.value, shape = CircleShape)
-            .padding(elementpadding)
-    )
-}
 
 
 @Composable

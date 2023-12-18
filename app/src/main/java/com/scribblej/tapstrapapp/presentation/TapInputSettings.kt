@@ -60,6 +60,9 @@ fun SettingsScreen() {
 
     val loopMultiTaps    = remember { mutableStateOf(preferences.getBoolean("loop_multi_taps", true)) }
     val multiTapTimeout  = remember { mutableStateOf(preferences.getInt("multi_tap_timeout", 300)) }
+    val lifetimeTaps     = remember { mutableStateOf(preferences.getInt("lifetime_taps", 0)) }
+
+
 
     Column(
     ) {
@@ -70,9 +73,14 @@ fun SettingsScreen() {
 
         Text("We will attempt to load these detected CSV files as tap maps:")
 
-        listCsvFiles(getAppSpecificExternalDirPath(context)).forEach { file ->
-            Text(text = file.name)
-            // Spacer(modifier = Modifier.height(8.dp))
+        val csvFiles = listCsvFiles(getAppSpecificExternalDirPath(context))
+        if (csvFiles.isEmpty()) {
+            Text("No files found; using defaults.")
+        }
+        else {
+            csvFiles.forEach { file ->
+                Text(text = file.name)
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -98,6 +106,8 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(text = "Version: ${BuildConfig.VERSION_NAME}")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Lifetime Taps: ${lifetimeTaps.value}")
 
     }
 }

@@ -1,0 +1,42 @@
+# one finger down
+10000,1
+01000,2
+00100,3
+00010,4
+00001,5
+# two fingers together
+11000,DPAD_LEFT
+01100,DPAD_UP
+00110,DPAD_RIGHT
+00011,9
+# two fingers skipping one
+10100,.
+01010,
+00101,8
+# two fingers skipping two
+10010,DPAD_DOWN
+01001,7
+# looks like y and w
+10001,6
+10101,
+# one finger up
+01111,0
+10111,
+11011,
+11101,
+11110,TAB
+# one finger chasing two
+10110,
+01011,
+# two fingers chasing one
+11010,
+01101,
+# three fingers skipping two
+11001,ENTER
+10011,ESCAPE
+# three fingers together
+11100,
+01110,BACKSPACE
+00111,MAPSWITCH,DEFAULT
+# all fingers together
+11111," "

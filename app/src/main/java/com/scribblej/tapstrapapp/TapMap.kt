@@ -2,9 +2,11 @@ package com.scribblej.tapstrapapp
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.text.toUpperCase
 import org.apache.commons.csv.CSVFormat
 import java.io.File
 import java.io.FileReader
+import java.io.InputStreamReader
 
 // Each holds a string that is presumed to represent a KeyCommand we know,
 // e.g. "RETURN", "ALTONCE", etc.  Full list in actionMap in TapInputMethodService (for now).
@@ -74,10 +76,20 @@ fun setCurrentMap(mapID: MapID) {
     currentMap = allTapMaps[mapID] ?: throw IllegalStateException("Map not found. Application cannot proceed.")
 }
 
-fun initializeMaps(context: Context) {
-    val files = listCsvFiles(getAppSpecificExternalDirPath(context))
+fun getResourceEntryName(context: Context, resourceId: Int): String {
+    return context.resources.getResourceEntryName(resourceId)
+}
 
+fun initializeMaps(context: Context) {
+
+    val files = listCsvFiles(getAppSpecificExternalDirPath(context))
     val tempLookUpTable = mutableMapOf<String, PatternMap>()
+
+    // Load our internal smaps first, the user's will overwrite them if the user has provided any.
+    listOf(R.raw.default_1, R.raw.default_2, R.raw.default_3, R.raw.shiftmap_1, R.raw.switchmap_1).forEach() {
+        val fileName = getResourceEntryName(context, it).uppercase()
+        tempLookUpTable[fileName] = loadCsvAsMap(context, it)
+    }
 
     files.forEach { file ->
         tempLookUpTable[file.nameWithoutExtension] = loadCsvAsMap(file.path)
@@ -176,6 +188,25 @@ fun loadCsvAsMap(filePath: String): PatternMap {
     val map: MutableMap<TapPattern, CommandList> = mutableMapOf()
 
     FileReader(filePath).use { reader ->
+        val csvParser = CSVFormat.DEFAULT
+            .withCommentMarker('#')
+            .parse(reader)
+        for (csvRecord in csvParser) {
+            val keyString = csvRecord.get(0)
+            val keyInt = keyString.reversed().toInt(2) // Convert binary string to Int
+            val values = csvRecord.toList().subList(1, csvRecord.size())
+            map[keyInt] = values
+        }
+    }
+
+    return map.toMap()
+}
+
+fun loadCsvAsMap(context: Context, resourceId: Int): PatternMap {
+    val map: MutableMap<TapPattern, CommandList> = mutableMapOf()
+
+    val inputStream = context.resources.openRawResource(resourceId)
+    InputStreamReader(inputStream).use { reader ->
         val csvParser = CSVFormat.DEFAULT
             .withCommentMarker('#')
             .parse(reader)
