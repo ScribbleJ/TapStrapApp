@@ -19,7 +19,7 @@
 01001,[
 # looks like y and w
 10001,z
-10101,
+10101,STARTMOUSE
 # one finger up
 01111,.
 10111,:

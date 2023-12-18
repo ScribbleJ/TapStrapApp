@@ -17,12 +17,12 @@ This project aims to significantly enhance the typing experience for Tap Strap u
    * (Optional) Tap Cycling: If you keep double-triple-etc tapping, after you go past the end of what's configured, it wraps back around to single-tap again, so you can "go back" without getting the wrong output first.
    * Does All the Keys:  You know the list of like a thousand Android KeyCodes?  Well, we do!  ( See /config/DEFAULT_1 )  
    * Multiple Configuration Profiles: Supports switching between unlimited chording configurations to suit different use cases.
+   * Easier Switching Between Mouse and Not: You can set a tap command to activate the mouse instead of all the fiddling about with trying to get the firmware to recognize you want mouse mode.  In the default keymap, double-tap w to activate mouse mode.  There is no AirMouse.  
    * Super Untested And Unfinished Code: You won't see that from Tap Systems!
 
 ## Upcoming Features:
 
    * Hopefully nothing -- it would be infintely prefereable to see Tap Systems make these features available on-device, most particularly the elimination of the backspace behavior and the ability to program chords offline.  But until they do...
-   * Mouse mode
    * Better UI/In-app Configuration
    * System service to make it useful even when Android doesn't want to use the IME (anytime you're not in a text entry, basically) -- work more like a hardware keyboard.
    * I'd still like to add a HID "passthrough" that allows you to connect your phone to another device and actually use the Tap Strap with these IME features on any bluetooth device.  But so far, no luck.
@@ -50,7 +50,10 @@ It's full of bugs and will probably set your phone on fire.  I can't take any re
 * If you use mulitple maps, they can be named whatever you like, but still must end in \_1.csv for the first tap, \_2 for the second, etc.
 * Comments in DEFAULT\_1.csv in the /config directory here will give you some clues.
 
-## USAGE NOTE:
+## USAGE NOTES:
+
+* The only way to activate mouse mode when using the IME is to use the tap command to start it.  By default it's double-tap w, 10101.  But you can set STARTMOUSE to any tap you like in your own config.  
+* Even more importantly, the only way to get out of mouse mode is by tapping all four fingers, think 'h' or 01111.   
 
 ### JUST KEEP TAPPING.  // Hey, is this an app name?
 

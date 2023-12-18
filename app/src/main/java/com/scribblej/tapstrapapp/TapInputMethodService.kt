@@ -29,6 +29,7 @@ import com.scribblej.tapstrapapp.presentation.TapInputView
 
 import com.scribblej.tapstrapapp.presentation.TapInputViewModel
 import com.tapwithus.sdk.mode.TapInputMode
+import com.tapwithus.sdk.mouse.MousePacket
 
 // For managing the timeouts without race conditions
 import java.util.concurrent.Executors
@@ -62,12 +63,17 @@ class TapInputMethodService : LifecycleInputMethodService(),
         return arrayOf()
     }
 
+    var inMouseMode = false
+
     private fun tapMouseStart() : Array<KeyEvent> {
         sdk.connectedTaps.forEach() { sdk.startControllerWithMouseHIDMode(it) }
+        inMouseMode = true;
         return arrayOf()
     }
+
     private fun tapMouseStop() : Array<KeyEvent> {
         sdk.connectedTaps.forEach() { sdk.startControllerMode(it) }
+        inMouseMode = false;
         return arrayOf()
     }
 
@@ -76,7 +82,7 @@ class TapInputMethodService : LifecycleInputMethodService(),
     private val actionMap: Map<String, () -> Array<KeyEvent>> = mapOf(
         "MAPSWITCH" to { prepareMapSwitch() },
         "STARTMOUSE" to { tapMouseStart() },
-        "STOPMOUSE"  to { tapMouseStop() },
+        "STOPMOUSE"  to { tapMouseStop() },  // There's not actually any way to use this right now, it's hardcoded 01111 in mouse mode gets you out.
         "CTRL"  to { toggleModifier(KeyEvent.META_CTRL_ON) },
         "ALT"   to { toggleModifier(KeyEvent.META_ALT_ON) },
         "SHIFT" to { toggleModifier(KeyEvent.META_SHIFT_ON) },
@@ -244,6 +250,8 @@ class TapInputMethodService : LifecycleInputMethodService(),
         )
     }
 
+
+
     var mapSwitchFlag: Boolean = false
     // TODO: check whether input is even wanted?
     private fun sendKeys(commandList: CommandList) {
@@ -320,6 +328,17 @@ class TapInputMethodService : LifecycleInputMethodService(),
             val tapPattern: TapPattern = data
             tapInputViewModel.updateTapPattern(tapPattern)
 
+            //TODO: this better
+            if (inMouseMode) {
+                // We have to continue to listen to taps, but we don't want to respond to any of them until we see the secret
+                // stop mousing code.  Which for purposes of testing, I guess we could use the distance in the mouse packets,
+                // or we could have a particular tap, or IDK IDK.  Today's not a day for thinking.
+                val secretStop = "01111".reversed().toInt(2) // whynot?
+                if (tapPattern == secretStop)
+                    tapMouseStop()
+
+                return
+            }
             val commandLists = getCommandListsForTapPattern(tapPattern)
             tapInputViewModel.setCommandLists(commandLists)
 
