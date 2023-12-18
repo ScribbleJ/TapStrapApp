@@ -35,14 +35,20 @@ It's full of bugs and will probably set your phone on fire.  I can't take any re
 
 ### "Quick" Start:
 * Install APK
-* Run the "TapStrapIME" App and take note of the directory it tells you to put the configuration files into.
-* Copy the default configuration from /config in this repository or write you own and put them in the indicated directory on your phone.  You can use any file manager, or adb, there's a script in the config.
+* (Optional) See the next section to create your own mapping(s).
 * Go to your Android settings, find the keyboard settings (it varies) and you should find a page there where you can chose which of your installed IME/Kayboards are allowed to run.  Turn on TapStrapIME.  You can and should leave your usual keyboards enabled as well.
 * (Optional but HIGHLY suggested:) If you have an option to always display the keyboard switcher (maybe "Keyboard button") make sure it's turned on.
 * (Optional but suggested:) Probably on another settings screen, find the option to display the software keyboard even if a physical keyboard is attached.  
 * Start up your Tap Strap, make sure it's connected to your Android device successfully.  
 * Use the settings menu or the "Keyboard button" you just turned on to switch your default keyboard to the TapStrapIME.
 * Find someplace to input text and try it out.  The provided config files should match the defaults in the TapStrap hardware.
+
+### Creating your own mappings:
+* Run the "TapStrapIME" App and take note of the directory it tells you to put the configuration files into.
+* Copy the default configuration from /config in this repository or write you own and put them in the indicated directory on your phone.  You can use any file manager, or adb, there's a script in the config.
+* The configuration file named DEFAULT\_1.csv is where the TapIME will start and defines the actions taken on single-taps.  DEFAULT\_2.csv defines the double-taps, and so on.  
+* If you use mulitple maps, they can be named whatever you like, but still must end in \_1.csv for the first tap, \_2 for the second, etc.
+* Comments in DEFAULT\_1.csv in the /config directory here will give you some clues.
 
 ## USAGE NOTE:
 
