@@ -2,48 +2,35 @@ package com.scribblej.tapstrapapp
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.ui.text.toUpperCase
 import org.apache.commons.csv.CSVFormat
 import java.io.File
 import java.io.FileReader
 import java.io.InputStreamReader
 
-// Each holds a string that is presumed to represent a KeyCommand we know,
-// e.g. "RETURN", "ALTONCE", etc.  Full list in actionMap in TapInputMethodService (for now).
-// If it's NOT one of those, then it's considered an actual sequence of literal characters to "type"
-typealias KeyCommand = String
-typealias CommandList = List<KeyCommand>
-// TapPattern is what we've decided to call a particular configuration of tapped fingers.
-typealias TapPattern = Int
-// Mapping of TapPattern to keypresses:
-typealias PatternMap = Map<TapPattern, CommandList>
-// Name of each possible TapMap in the app.
-typealias MapID = String
-// Number of multitaps for this TapMap
-typealias TapCount = Int
-
-// Note: The "TapCount" will be implied in the List<CommandList> index; i.e. the TapMap that is TapCount 1
-// will be at index 0 of the list.  We'll use .size to determine how many.
-typealias TapMap = Map<TapPattern, List<CommandList>>
-
 private var currentMap: TapMap = mapOf()
 private var allTapMaps: Map<MapID, TapMap> = mapOf()
 
-fun lookupTap(tapCount: TapCount, tapPattern: TapPattern) : CommandList {
-    return currentMap[tapPattern]?.getOrNull(tapCount - 1) ?: listOf()
+fun stringToTapPattern(tapIn: String) : TapPattern {
+    return try {
+        tapIn.reversed().toInt(2)
+    } catch (e: NumberFormatException) {
+        Log.d("TapMap", "$tapIn is not a Tap Pattern.")
+        throw IllegalArgumentException("$tapIn is not a Tap Pattern.")
+    }
 }
 
-fun convertTapPattern(rawTapPattern: BooleanArray) : TapPattern {
-    return rawTapPattern.toBinaryInt()
+fun tapPatternToString(tapIn: TapPattern) : String {
+    return String.format("%5s", Integer.toBinaryString(tapIn).reversed()).replace(' ', '0')
+}
+
+fun lookupTap(tapCount: TapCount, tapPattern: TapPattern) : CommandList {
+    return currentMap[tapPattern]?.getOrNull(tapCount - 1) ?: listOf()
 }
 
 fun getCommandListsForTapPattern(tapPattern: TapPattern) : List<CommandList> {
     return currentMap[tapPattern] ?: listOf()
 }
 
-// Although we provide an overloaded fun below, in practice, this is always going to be
-// the version called because the caller is always going to need to know the .size
-// before it calls, so it will have done getCommandListsForTapPattern already.
 fun getCommandList(commandLists: List<CommandList>, tapCount: TapCount): CommandList {
     val tapIndex = tapCount - 1
     val wrappedIndex = tapIndex % commandLists.size // Wrap around
@@ -86,7 +73,7 @@ fun initializeMaps(context: Context) {
     val tempLookUpTable = mutableMapOf<String, PatternMap>()
 
     // Load our internal smaps first, the user's will overwrite them if the user has provided any.
-    listOf(R.raw.default_1, R.raw.default_2, R.raw.default_3, R.raw.shiftmap_1, R.raw.switchmap_1).forEach() {
+    listOf(R.raw.default_1, R.raw.default_2, R.raw.default_3, R.raw.shiftmap_1, R.raw.switchmap_1).forEach {
         val fileName = getResourceEntryName(context, it).uppercase()
         tempLookUpTable[fileName] = loadCsvAsMap(context, it)
     }
@@ -193,7 +180,7 @@ fun loadCsvAsMap(filePath: String): PatternMap {
             .parse(reader)
         for (csvRecord in csvParser) {
             val keyString = csvRecord.get(0)
-            val keyInt = keyString.reversed().toInt(2) // Convert binary string to Int
+            val keyInt = stringToTapPattern(keyString) // Convert binary string to Int
             val values = csvRecord.toList().subList(1, csvRecord.size())
             map[keyInt] = values
         }
