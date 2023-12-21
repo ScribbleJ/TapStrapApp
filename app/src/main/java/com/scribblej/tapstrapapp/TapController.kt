@@ -98,7 +98,7 @@ object TapController : TapAdapter {
     fun startMouseMode(exitCode: List<String> = listOf("01111")) {
         // We don't track an active TapStrap at this point so we just
         // treat multiples the same, if they exist.
-        sdk.connectedTaps.forEach() { sd(it) }
+        sdk.connectedTaps.forEach() { sdk.startControllerWithMouseHIDMode(it) }
         mouseModeActive = true
         ignoreInputUntilFromString(exitCode)
     }

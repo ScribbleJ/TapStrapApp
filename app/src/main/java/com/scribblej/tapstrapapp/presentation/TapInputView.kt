@@ -84,8 +84,9 @@ fun TapStateView(tapInputViewModel: TapInputViewModel) {
 
 @Composable
 fun CommandListIndicator(tapInputViewModel: TapInputViewModel) {
-    val tapCount = tapInputViewModel.tapCount.value
-    val commandLists = tapInputViewModel.commandLists.value
+    val tapCount by tapInputViewModel.tapCount.collectAsState()
+    val commandLists by tapInputViewModel.commandLists.collectAsState()
+
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val padding = 16.dp
