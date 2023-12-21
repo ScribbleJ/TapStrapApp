@@ -5,14 +5,14 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
-interface MultiTapHandler {
+interface MultiTapRecognizer {
     fun onTapReceived(tapPattern: Int) : TapData
 
 }
 
 val _DEFAULTTIMEOUT: Long = 300
 
-class JkTapHandler(private var multiTapTimeout: Long = _DEFAULTTIMEOUT, private var loopMultiTaps: Boolean = false) : MultiTapHandler {
+class JkTapRecognizer(private var multiTapTimeout: Long = _DEFAULTTIMEOUT, private var loopMultiTaps: Boolean = false) : MultiTapRecognizer {
 
     private fun debuglog(logEntry: String) {
         Log.d("JkTapHandler", logEntry)
@@ -38,27 +38,35 @@ class JkTapHandler(private var multiTapTimeout: Long = _DEFAULTTIMEOUT, private 
     private var scheduledFuture: ScheduledFuture<*>? = null
 
     override fun onTapReceived(tapPattern: Int) : TapData {
-        var returnList : CommandList = listOf()
+        var returnData : TapData = TapData()
+
         synchronized(this) {
             // ASSERT: tapPattern is not 0, that would be a tap of no taps, that's dumb.
             // Note: OMG I just realized there aren't 32 possible taps, there's 31.
             cancelTapTimer()
 
+            returnData.tapCount = tapCount
+            returnData.tapPattern = tapPattern
+            returnData.metaKeys = MetaKeysManager.metaKeys
+            returnData.modOnce = MetaKeysManager.useOnce
+            returnData.potentialCommandLists = currentCommandLists
+
             //////////////////////////////////////////
             // IF THIS IS THE SAME AS THE LAST (AND WE KNOW THE TIMER ISN'T EXPIRED OR LAST WOULD BE 0)
             if (lastInput == tapPattern) {
                 tapCount += 1
+                returnData.tapCount = tapCount
 
                 // We want to send the final CommandList in the sequence if we aren't looping
                 if (!loopMultiTaps && (tapCount >= currentCommandLists.size)) {
-                    debuglog("Sending because commandList at max and no loops allowed.")
-                    returnList = getCommandList(currentCommandLists, tapCount)
+                    debuglog("GOT MULTI: Sending because commandList at max and no loops allowed.")
+                    returnData.executableCommandList = getCommandList(currentCommandLists, tapCount)
                     lastInput = 0
                     tapCount = 0
                     return@synchronized
                 }
 
-                debuglog("Not sending because multi-tap loops.")
+                debuglog("GOT MULTI: Setting timer to send later...")
                 setTapTimer()
                 return@synchronized
             }
@@ -67,45 +75,51 @@ class JkTapHandler(private var multiTapTimeout: Long = _DEFAULTTIMEOUT, private 
             // THIS IS A NEW TAPPATTERN!
             // Send last tap if it exists, then reset the counters for this tap.
             if (lastInput != 0) {
-                debuglog("sending prior because new pattern.")
+                debuglog("NEW TAP: Sending prior because new pattern.")
                 val pcl = getCommandListsForTapPattern(lastInput)
-                    val tapData = TapData(tapPattern = lastInput,
+                    val lastTapData = TapData(tapPattern = lastInput,
                        potentialCommandLists = pcl,  // Should be unset?
                        executableCommandList = pcl[tapCount-1],
                        tapCount=tapCount,
                        metaKeys = MetaKeysManager.metaKeys,
                        modOnce = MetaKeysManager.useOnce)
                     // TODO: What a mess.
-                    TapController.handleRecognizedTap(tapData)
+                    TapController.handleRecognizedTap(lastTapData)
             }
 
             lastInput = tapPattern
             tapCount = 1
             currentCommandLists = getCommandListsForTapPattern(tapPattern)
 
-            debuglog("New tap for $tapPattern and we have ${currentCommandLists.size} tap options containing '$currentCommandLists' ")
+            returnData.tapCount = tapCount
+            returnData.potentialCommandLists = currentCommandLists
+
+            debuglog("NEW TAP: $tapPattern and we have ${currentCommandLists.size} tap options containing '$currentCommandLists' ")
 
             if (currentCommandLists.size == 0) {  // No options, no way.
-                debuglog("tapPattern not in map: ${tapPatternToString(tapPattern)}")
+                debuglog("NEW TAP: tapPattern not in map: ${tapPatternToString(tapPattern)}")
                 return@synchronized
             }
 
             if (currentCommandLists.size == 1) {  // When there's only one options it is going to get sent regardless of anything else.
-                returnList = currentCommandLists[0]
-                debuglog("Sending tap immediately because there's no multi defined for ${tapPatternToString(tapPattern)}")
+                returnData.executableCommandList = currentCommandLists[0]
+                // the prior handler above may have changed MetaKeys
+                returnData.metaKeys = MetaKeysManager.metaKeys
+                returnData.modOnce = MetaKeysManager.useOnce
+
+                lastInput = 0
+                tapCount = 0
+                debuglog("NEW TAP: Sending tap immediately because there's no multi defined for ${tapPatternToString(tapPattern)}")
                 return@synchronized
             }
 
+            debuglog("NEW TAP: Setting timer to send later...")
             // Start a timer for this tap so we can handle multiple taps.
             setTapTimer()
         }
-        return TapData(tapPattern = tapPattern,
-                       potentialCommandLists = getCommandListsForTapPattern(tapPattern),
-                       executableCommandList = returnList,
-                       tapCount=tapCount,
-                       metaKeys = MetaKeysManager.metaKeys,
-                       modOnce = MetaKeysManager.useOnce
-        )
+
+        return returnData
+
     }
 
     private fun setTapTimer() {
@@ -123,7 +137,7 @@ class JkTapHandler(private var multiTapTimeout: Long = _DEFAULTTIMEOUT, private 
                         // that's the fundamental that would fail to match /only/ in race conditions.
                         return@schedule  // guess we aren't concerned.
                     }
-                    debuglog("Sending because timed out.")
+                    debuglog("TIMER: Sending because timed out.")
                     val pcl = getCommandListsForTapPattern(lastInput)
                     val tapData = TapData(tapPattern = lastInput,
                        potentialCommandLists = pcl,  // Should be unset?

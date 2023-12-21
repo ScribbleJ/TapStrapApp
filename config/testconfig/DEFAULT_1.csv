@@ -34,8 +34,8 @@
 # three fingers together
 11001,ENTER
 10011,p
-#
-11100,STARTMOUSE
+# parameters after STARTMOUSE define a pattern to tap to get out of mouse mode; here it's double-h.
+11100,STARTMOUSE,01111,01111
 01110,BACKSPACE
 00111,MAPSWITCH,SWITCHMAP
 # all fingers together

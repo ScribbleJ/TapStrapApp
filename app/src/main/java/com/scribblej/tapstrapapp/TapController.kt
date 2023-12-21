@@ -22,7 +22,7 @@ object TapController : TapAdapter {
     private var mouseModeActive : Boolean = false
     // This is how we get the mapping from characters to Keycodes.
     private val keyCharacterMap = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD)
-    private lateinit var multiTapHandler: MultiTapHandler
+    private lateinit var multiTapRecognizer: MultiTapRecognizer
 
     // Initialize keyEventReceiver as a nullable lambda function
     var keyEventReceiver: ((KeyEvent) -> Unit)? = null
@@ -47,7 +47,7 @@ object TapController : TapAdapter {
         sdk.enablePauseResumeHandling()
         sdk.clearCacheOnTapDisconnection(true)
 
-        multiTapHandler = JkTapHandler(multiTapTimeout = tapTimeout, loopMultiTaps = loopMultiTaps)
+        multiTapRecognizer = JkTapRecognizer(multiTapTimeout = tapTimeout, loopMultiTaps = loopMultiTaps)
     }
 
     // Convenient
@@ -60,15 +60,19 @@ object TapController : TapAdapter {
 
         // Check if we're locked
         unlockInputSequence?.let { sequence ->
-            if (sequence.isSequenceComplete(data))
+            if (sequence.isSequenceComplete(data)) {
                 unlockInputSequence = null
-            else {
-                // TODO: Code here for updating viewModel to indicate lock status.
-                return
+                if (mouseModeActive) {
+                    // TODO: Don't assume this is the reason we're locked.
+                    endMouseMode()
+                }
             }
+
+            // TODO: Code here for updating viewModel to indicate lock status.
+            return
         }
 
-        val tapData = multiTapHandler.onTapReceived(data)
+        val tapData = multiTapRecognizer.onTapReceived(data)
         handleRecognizedTap(tapData)
     }
 
@@ -94,7 +98,7 @@ object TapController : TapAdapter {
     fun startMouseMode(exitCode: List<String> = listOf("01111")) {
         // We don't track an active TapStrap at this point so we just
         // treat multiples the same, if they exist.
-        sdk.connectedTaps.forEach() { sdk.startControllerWithMouseHIDMode(it) }
+        sdk.connectedTaps.forEach() { sd(it) }
         mouseModeActive = true
         ignoreInputUntilFromString(exitCode)
     }
@@ -107,9 +111,6 @@ object TapController : TapAdapter {
     // Translate a CommandList into KeyEvents
     fun executeCommandList( commandList: CommandList
                                     ) : Boolean {
-
-        val safeKeyCodeReceiver = keyEventReceiver
-            ?: return false // We can't do anything if we don't have a place to send KeyEvents.
 
         var keyEvents: Array<KeyEvent>
         var modOnceFlag = false
@@ -134,8 +135,9 @@ object TapController : TapAdapter {
             if (mapString == "STARTMOUSE") { // Begin mouse mode; parameters indicate how to quit.
                 // Check if there is at least one parameter after "STARTMOUSE"
                 if (loopIndex + 1 >= commandList.size) {
-                    debuglog("Missing parameter for STARTMOUSE.")
-                    return false
+                    debuglog("Missing parameter(s) for STARTMOUSE, defaulting to '01111'.")
+                    startMouseMode()
+                    return true
                 }
 
                 val params = commandList.subList(loopIndex + 1, commandList.size)
@@ -232,6 +234,7 @@ object TapController : TapAdapter {
         Log.e("TapController", "Tap $tapIdentifier ERROR $code \"$description\"")
     }
 
+
     class SequenceRecognizer(private val sequence: List<Int>) {
         private var currentIndex: Int = 0
 
@@ -239,7 +242,7 @@ object TapController : TapAdapter {
 
         fun isSequenceComplete(nextVal: TapPattern = 0) : Boolean {
             // If this pattern matches the next in the sequence, good.
-            if (currentIndex < sequence.size - 1 && sequence[currentIndex + 1] == nextVal)
+            if (currentIndex < sequence.size && sequence[currentIndex] == nextVal)
                 currentIndex++
             else // Otherwise, start over.
                 currentIndex=0

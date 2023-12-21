@@ -17,9 +17,9 @@ typealias TapCount = Int
 typealias TapMap = Map<TapPattern, List<CommandList>>
 
 // used for returns and calls in the TapInputMethodService -> TapController -> MultiTapHandler call stack.
-data class TapData( val tapPattern: TapPattern,
-                    val tapCount: TapCount,
-                    val metaKeys: Int,
-                    val modOnce: Boolean,
-                    val potentialCommandLists: List<CommandList>,
-                    val executableCommandList: CommandList )
+data class TapData( var tapPattern: TapPattern = 0,
+                    var tapCount: TapCount = 0,
+                    var metaKeys: Int = 0,
+                    var modOnce: Boolean = false,
+                    var potentialCommandLists: List<CommandList> = listOf(),
+                    var executableCommandList: CommandList = listOf())
